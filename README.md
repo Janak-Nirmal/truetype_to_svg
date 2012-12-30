@@ -83,5 +83,6 @@ you have QA B LB LC
 it should be QA B LC
 
 
-
+some glyphs are right up close on the left side - need to indent somehow
+with bearing or something from the freetype metrics
 
