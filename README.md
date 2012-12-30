@@ -34,6 +34,30 @@ A start is to do 'locate ttf | grep ttf$' which will give a list of all
 Truetype fonts (w .ttf extensions) on your system . There seems to be 
 some good stuff under /usr/share/fonts/truetype/unfonts-core
 
+
+Note on points
+
+The display of raw TrueType points can be a bit confusing. Truetype uses
+Quadratic Beziers (two points on-curve, and one 'control' point defining
+the curve). 
+
+But even though its really using Quadratic beziers , it kind of looks 
+like it might be using Cubics (two points on curve, and two control 
+points off curve)... but it's not. There are actually invisible on-curve 
+points 'implied' to exist halfway between two adjacent off-curve 
+Quadratic Bezier control points - that's how Truetype works (and 
+supposedly saves data of having extra points since the machine can 
+calculate the implied points automatically).
+
+So the 'off-the-curve' aka 'control' points are drawn ... but TrueType 
+has 'implied' "on-the-curve" points when two off-curve points come one 
+right after the other - and they aren't drawn. It's not cubics though. We
+aren't doing cubics. 
+
+I could draw the 'invisibles', but this is a quick example hack not a 
+well designed thought out program.
+
+
 Known Bugs
 
 
