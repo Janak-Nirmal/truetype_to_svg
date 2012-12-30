@@ -130,7 +130,7 @@ int main( int argc, char * argv[] )
 		}
 		int level = ( ( 1.0 * i ) / outline.n_points ) * 255;
 		stringstream rgb; rgb << "rgb(40,40," << level << ")";
-		if (tags[i] & 1) color = rgb.str(); else color = "none";
+		if (tags[i] & 1) color = "blue"; else color = "none";
 		svg << "\n <circle "
 			<< " fill='" << color << "'"
 			<< " stroke='black'"
