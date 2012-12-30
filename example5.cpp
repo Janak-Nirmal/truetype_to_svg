@@ -50,7 +50,7 @@ int main( int argc, char * argv[] )
 	cout << "\nNumber of faces: " << face->num_faces;
 	cout << "\nNumber of glyphs: " << face->num_glyphs;
 
-	// Load the Glyph into the face's Glyph Slot
+	// Load the Glyph into the face's Glyph Slot + print details
 	FT_UInt glyph_index = FT_Get_Char_Index( face, unicode );
 	cout << "\nUnicode requested: " << unicode_s;
 	cout << " (decimal: " << unicode << " hex: 0x" << hex << unicode << dec << ")";
@@ -59,7 +59,6 @@ int main( int argc, char * argv[] )
 	cout << "\nLoad Glyph into Face's glyph slot. error code: " << error;
 	FT_GlyphSlot slot = face->glyph;
 
-	// Glyph name
 	char glyph_name[1024];
 	FT_Get_Glyph_Name( face, glyph_index, glyph_name, 1024 );
 	cout << "\nGlyph Name: " << glyph_name;
@@ -69,6 +68,7 @@ int main( int argc, char * argv[] )
 		<< " Hor. Advance: " << slot->metrics.horiAdvance
 		<< " Vert. Advance: " << slot->metrics.vertAdvance;
 
+
 	// Print outline details, taken from the glyph in the slot.
 	FT_Outline outline = slot->outline;
   cout << "\nNum contours: " << outline.n_contours;
@@ -77,6 +77,7 @@ int main( int argc, char * argv[] )
 	char* tags = outline.tags;
 	short* contours = outline.contours;
 	cout << "\n-->\n";
+
 
 	// SVG output. See these sites for more info.
 	// Basic Terms: http://www.freetype.org/freetype2/docs/glyphs/glyphs-3.html
@@ -117,12 +118,14 @@ int main( int argc, char * argv[] )
 
 	// draw points and straight lines between them
 	for ( int i = 0 ; i < outline.n_points ; i++ ) {
-		int radius = 5;
+		float radius = 5;
 		string color;
 		for ( int j = 0 ; j < outline.n_contours ; j++ ) {
 			if ( i == contours[j] ) radius = 10;
 		}
-		if (tags[i] & 1) color = "blue"; else color = "none";
+		int level = ( ( 1.0 * i ) / outline.n_points ) * 255;
+		stringstream rgb; rgb << "rgb(40,40," << level << ")";
+		if (tags[i] & 1) color = rgb.str(); else color = "none";
 		svg << "\n <circle "
 			<< " fill='" << color << "'"
 			<< " stroke='black'"
