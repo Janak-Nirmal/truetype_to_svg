@@ -68,6 +68,8 @@ int main( int argc, char * argv[] )
 		<< " Hor. Advance: " << slot->metrics.horiAdvance
 		<< " Vert. Advance: " << slot->metrics.vertAdvance;
 
+	FT_Glyph_Metrics metrics = slot->metrics;
+
 
 	// Print outline details, taken from the glyph in the slot.
 	FT_Outline outline = slot->outline;
@@ -106,15 +108,18 @@ int main( int argc, char * argv[] )
 	// set 0,0 at center of view area
 	int yadj = 0; //(slot->metrics.vertAdvance);
 	svg << "\n <g fill-rule='nonzero' "
-		<< " transform='translate(" << gwidth/2 << " " << gheight/2 << ")"
-		<< "'>";
+		<< " transform='translate(" << 0 << " " << metrics.horiBearingY + metrics.vertBearingY << ")'"
+		<< ">";
 
 	// draw axes
 	svg << "\n <path stroke='blue' stroke-dasharray='5,5' d='M"
-		<< -gwidth/2 << " " << "0 L" << gwidth/2 << " " << 0
-		<< " M" << 0 << " " << -gheight/2 << " " << "L0 " << gheight/2
+		<< -gwidth << " " << "0 L" << gwidth << " " << 0
+		<< " M" << 0 << " " << -gheight << " " << "L0 " << gheight
 		<< " '/>";
 
+	// invert
+	for ( int i = 0 ; i < outline.n_points ; i++ )
+		points[i].y *= -1;
 
 	// draw points and straight lines between them
 	for ( int i = 0 ; i < outline.n_points ; i++ ) {
@@ -129,12 +134,12 @@ int main( int argc, char * argv[] )
 		svg << "\n <circle "
 			<< " fill='" << color << "'"
 			<< " stroke='black'"
-			<< " cx='" << points[i].x << "' cy='" << -points[i].y << "'"
+			<< " cx='" << points[i].x << "' cy='" << points[i].y << "'"
 			<< " r='" << radius << "'"
 			<< "/>";
 	}
 	svg << "\n <path fill='none' stroke='green' d='";
-	svg << "\n   M " << points[0].x << "," << -points[0].y;
+	svg << "\n   M " << points[0].x << "," << points[0].y;
 	bool end = false;
 	int contour_counter = 0;
 	for ( int i = 0 ; i < outline.n_points ; i++ ) {
@@ -144,7 +149,7 @@ int main( int argc, char * argv[] )
 		} else {
 			svg << " L";
 		}
-		svg << " " << points[i].x << "," << -points[i].y;
+		svg << " " << points[i].x << "," << points[i].y;
 	}
 	svg << " Z'/>";
 
@@ -153,7 +158,7 @@ int main( int argc, char * argv[] )
 	// draw actual outline using lines and Bezier curves
 	contour_counter = 0;
 	svg << "\n\n  <path fill='none' stroke='black' d='\n";
-	svg << "      M" << points[0].x << "," << -points[0].y;;
+	svg << "      M" << points[0].x << "," << points[0].y;;
 	FT_Vector contour_startp = points[0];
 
 	for ( int i = 1 ; i < outline.n_points ; i++ ) {
@@ -170,10 +175,10 @@ int main( int argc, char * argv[] )
 			if ( !nexttag ) {
 				nextp = halfway_between( points[i], nextp );
 			}
-			svg << " " << points[i].x << "," << -points[i].y;
-			svg << " " << nextp.x << "," << -nextp.y;
+			svg << " " << points[i].x << "," << points[i].y;
+			svg << " " << nextp.x << "," << nextp.y;
 		} else {
-			svg << " L" << points[i].x << "," << -points[i].y;
+			svg << " L" << points[i].x << "," << points[i].y;
 		}
 
 		if ( i == contours[contour_counter] ) {
@@ -181,7 +186,7 @@ int main( int argc, char * argv[] )
 			svg << " Z";
 			contour_counter++;
 			if ( contour_counter < outline.n_contours )
-				svg << "\n      M" << points[i+1].x << "," << -points[i+1].y;
+				svg << "\n      M" << points[i+1].x << "," << points[i+1].y;
 		}
 	}
 	svg << "\n  '/>";
