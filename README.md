@@ -28,11 +28,19 @@ Finding A Unicode font
 
 It's a bit tricky, this doesn't use the tricks of linux to automatically 
 find fonts to fill a requested code. Different fonts have different amounts
-of symbols. 
+of glyphs.
 
-A start is to do 'locate ttf | grep ttf$' which will give a list of all 
-Truetype fonts (w .ttf extensions) on your system . There seems to be 
-some good stuff under /usr/share/fonts/truetype/unfonts-core
+A good start is to run 'charmap', under ubuntu, and then right click
+on interesting looking glyphs. It will give you some rough idea of the font
+name. 
+
+Now you can do 'locate ttf | grep ttf$' which will give a list of all 
+Truetype fonts (w .ttf extensions) on your system . 
+
+You can match this up with what you did in Charmap, then maybe you can find
+the truetype you are looking for. 
+
+
 
 
 Note on points
@@ -74,3 +82,7 @@ imagine A and B are points
 you have QA B LB LC
 
 it should be QA B LC
+
+
+
+
