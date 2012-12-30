@@ -40,3 +40,13 @@ Known Bugs
 It screws up on the last segment of each contour so some letters look 'off'. 
 This is easily viewable with unicode 67, 68 (C, D)
 Also see unicode 48007
+
+
+There are 'duplicate points'
+
+i.e.
+imagine A and B are points
+
+you have QA B LB LC
+
+it should be QA B LC
