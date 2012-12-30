@@ -13,8 +13,21 @@ Build and run:
 
 66 = unicode for 'B'. you can use any number here. you can use hex as well.
 
+For example, Cherokee Letter O:
+
+    ./a.out ./FreeSerif.ttf 0x13A3 > /tmp/x.svg
+
+
+
 Then in Firefox type 'file:///tmp/x.svg' into your address bar. 
 
 It is recommended to get the Firefox addon that can auto-reload files
 when they change on disk. 
 
+
+
+Known Bugs
+
+
+It screws up on the last segment of each contour so some letters look 'off'. 
+This is easily viewable with unicode 67, 68 (C, D)
