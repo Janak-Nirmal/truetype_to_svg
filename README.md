@@ -7,9 +7,9 @@ Tested on Linux
 
 Build and run:
 
-cp `where FreeSerif.ttf` .
-clang++ example5.cpp `freetype-config --cflags --libs `
-./a.out ./FreeSerif.ttf 66 > /tmp/x.svg 
+    cp `where FreeSerif.ttf` .
+    clang++ example5.cpp `freetype-config --cflags --libs `
+    ./a.out ./FreeSerif.ttf 66 > /tmp/x.svg 
 
 66 = unicode for 'B'. you can use any number here. you can use hex as well.
 
