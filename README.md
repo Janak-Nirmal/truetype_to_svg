@@ -71,8 +71,7 @@ Known Bugs
 
 It screws up on the last segment of each contour so some letters look 'off'. 
 This is easily viewable with unicode 67, 68 (C, D)
-Also see unicode 48007
-
+Also see unicode 48007 and 0x1f01e
 
 There are 'duplicate points'
 
