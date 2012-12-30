@@ -41,6 +41,10 @@ int main( int argc, char * argv[] )
 	error = FT_New_Face( library, filename.c_str(), 0, &face );
 	cout << "\nFace load error code: " << error;
 	cout << "\nTrueType filename: " << filename;
+	if (error) {
+		cerr << "problem loading file " << filename << "\n";
+		exit(1);
+	}
 	cout << "\nFamily Name: " << face->family_name;
 	cout << "\nStyle Name: " << face->style_name;
 	cout << "\nNumber of faces: " << face->num_faces;
