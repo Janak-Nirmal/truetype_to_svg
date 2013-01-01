@@ -5,7 +5,7 @@ Render truetype font as SVG path
 
 Tested on Linux
 
-Build and run:
+### Build and run:
 
     cp `locate FreeSerif.ttf` .
     clang++ example5.cpp `freetype-config --cflags --libs `
@@ -24,7 +24,7 @@ It is recommended to get the Firefox addon that can auto-reload files
 when they change on disk. 
 
 
-Finding A Unicode font
+### Finding A Unicode font
 
 It's a bit tricky, this doesn't use the tricks of linux to automatically 
 find fonts to fill a requested code. Different fonts have different amounts
@@ -41,9 +41,7 @@ You can match this up with what you did in Charmap, then maybe you can find
 the truetype you are looking for. 
 
 
-
-
-Note on points
+### Note on points
 
 The display of raw TrueType points can be a bit confusing. Truetype uses
 Quadratic Beziers (two points on-curve, and one 'control' point defining
@@ -66,7 +64,7 @@ I could draw the 'invisibles', but this is a quick example hack not a
 well designed thought out program.
 
 
-Known Bugs
+### Known Bugs
 
 
 It screws up on the last segment of each contour so some letters look 'off'. 
@@ -85,4 +83,13 @@ it should be QA B LC
 
 some glyphs are right up close on the left side - need to indent somehow
 with bearing or something from the freetype metrics
+
+### Misc
+
+Are there not other projects that do this better faster stronger harder?
+
+Yes, but they use Java
+
+http://xmlgraphics.apache.org/batik/tools/font-converter.html
+
 
