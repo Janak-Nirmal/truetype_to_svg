@@ -7,7 +7,7 @@ Tested on Linux
 
 Build and run:
 
-    cp `where FreeSerif.ttf` .
+    cp `locate FreeSerif.ttf` .
     clang++ example5.cpp `freetype-config --cflags --libs `
     ./a.out ./FreeSerif.ttf 66 > /tmp/x.svg 
 

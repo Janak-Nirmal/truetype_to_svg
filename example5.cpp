@@ -40,12 +40,13 @@ FT_Vector halfway_between( FT_Vector p1, FT_Vector p2 )
 
 int main( int argc, char * argv[] )
 {
-	cout << "<!--";
-	cout << "\nFreetype - example 5\n";
 	if (argc!=3) {
 		cerr << "usage: " << argv[0] << " file.ttf 0x0042\n";
 		exit( 1 );
 	}
+
+	cout << "<!--";
+	cout << "\nFreetype - example 5\n";
 
 	unsigned char glyphname[64];
 	string filename( argv[1] );
@@ -138,15 +139,12 @@ int main( int argc, char * argv[] )
 	for ( int i = 0 ; i < outline.n_points ; i++ )
 		points[i].y *= -1;
 
-	// draw points and straight lines between them
+	// draw points as circles
+	int contour_counter = 0;
 	for ( int i = 0 ; i < outline.n_points ; i++ ) {
-		float radius = 5;
+		int radius = 5;
+		if ( i == 0 ) radius = 10;
 		string color;
-		for ( int j = 0 ; j < outline.n_contours ; j++ ) {
-			if ( i == contours[j] ) radius = 10;
-		}
-		int level = ( ( 1.0 * i ) / outline.n_points ) * 255;
-		stringstream rgb; rgb << "rgb(40,40," << level << ")";
 		if (tags[i] & 1) color = "blue"; else color = "none";
 		svg << "\n <circle "
 			<< " fill='" << color << "'"
@@ -155,20 +153,13 @@ int main( int argc, char * argv[] )
 			<< " r='" << radius << "'"
 			<< "/>";
 	}
+	// draw straight lines between points
 	svg << "\n <path fill='none' stroke='green' d='";
-	svg << "\n   M " << points[0].x << "," << points[0].y;
-	bool end = false;
-	int contour_counter = 0;
+	svg << "\n   M " << points[0].x << "," << points[0].y << " L ";
 	for ( int i = 0 ; i < outline.n_points ; i++ ) {
-		if ( i-1 == contours[contour_counter] ) {
-			contour_counter++;
-			if ( contour_counter < outline.n_contours ) svg << " Z\n   M";
-		} else {
-			svg << " L";
-		}
 		svg << " " << points[i].x << "," << points[i].y;
 	}
-	svg << " Z'/>";
+	svg << "'/>";
 
 
 
