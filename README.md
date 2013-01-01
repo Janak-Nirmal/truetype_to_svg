@@ -8,8 +8,8 @@ Tested on Linux
 ### Build and run:
 
     cp `locate FreeSerif.ttf` .
-    clang++ example5.cpp `freetype-config --cflags --libs `
-    ./a.out ./FreeSerif.ttf 66 > /tmp/x.svg 
+    ./build.sh
+    ./truetype_to_svg ./FreeSerif.ttf 66 > /tmp/x.svg 
 
 66 = unicode for 'B'. you can use any number here. 
 (note that the first part of ASCII is the same as unicode so ASCII codes work too)
@@ -92,4 +92,10 @@ Yes, but they use Java
 
 http://xmlgraphics.apache.org/batik/tools/font-converter.html
 
+
+### Todo
+
+get real name of glyph (like unicode name)
+
+investigate linux's auto-finding of unicode glyphs
 

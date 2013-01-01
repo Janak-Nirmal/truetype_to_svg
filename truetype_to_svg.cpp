@@ -109,13 +109,18 @@ int main( int argc, char * argv[] )
 	// SVG paths: http://www.w3schools.com/svg/svg_path.asp
 	// SVG paths + nonzero: http://www.w3.org/TR/SVG/painting.html#FillProperties
 
+	// Invert y coordinates (SVG = neg at top, TType = neg at bottom)
+	for ( int i = 0 ; i < outline.n_points ; i++ )
+		points[i].y *= -1;
+
 	stringstream svg;
-	svg << "\n\n<!-- Header + border -->";
 	int bbheight = face->bbox.yMax - face->bbox.yMin;
 	int bbwidth = face->bbox.xMax - face->bbox.xMin;
 	svg << "\n<svg width='" << bbwidth << "px'"
 		<< " height='" << bbheight << "px'"
     << " xmlns='http://www.w3.org/2000/svg' version='1.1'>";
+
+	svg << "\n\n <!-- draw border -->";
 	svg << "\n <rect fill='none' stroke='black'"
 		<< " width='" << bbwidth - 1 << "'"
 		<< " height='" << bbheight - 1 << "'/>";
@@ -127,7 +132,7 @@ int main( int argc, char * argv[] )
 		<< " transform='translate(" << xadj << " " << yadj << ")'"
 		<< ">";
 
-	svg << "\n\n <!-- draw axes --> ";
+	svg << "\n\n  <!-- draw axes --> ";
 	svg << "\n <path stroke='blue' stroke-dasharray='5,5' d='"
 		<< " M" << -bbwidth << "," << 0
 		<< " L" <<  bbwidth << "," << 0
@@ -135,14 +140,11 @@ int main( int argc, char * argv[] )
 		<< " L" << 0 << "," << bbheight
 		<< " '/>";
 
-	svg << "\n\n <!-- draw bearing box --> ";
-
+	svg << "\n\n  <!-- draw bearing + advance box --> ";
 	int x1 = 0;
 	int x2 = gm.horiAdvance;
 	int y1 = -gm.vertBearingY-gm.height;
 	int y2 = y1 + gm.vertAdvance;
-
-	svg << "\n\n <!-- vertical bearing Y --> ";
 	svg << "\n <path stroke='blue' fill='none' stroke-dasharray='10,16' d='"
 		<< " M" << x1 << "," << y1
 		<< " M" << x1 << "," << y2
@@ -151,18 +153,14 @@ int main( int argc, char * argv[] )
 		<< " L" << x1 << "," << y1
 		<< " '/>";
 
-	// Invert y coordinates (SVG = neg at top, TType = neg at bottom)
-	for ( int i = 0 ; i < outline.n_points ; i++ )
-		points[i].y *= -1;
-
-	svg << "\n\n<!-- draw points as circles -->";
-	int contour_counter = 0;
+	svg << "\n\n  <!-- draw points as circles -->";
+	int contour_index = 0;
 	for ( int i = 0 ; i < outline.n_points ; i++ ) {
 		int radius = 5;
 		if ( i == 0 ) radius = 10;
 		string color;
 		if (tags[i] & 1) color = "blue"; else color = "none";
-		svg << "\n <circle "
+		svg << "\n  <circle "
 			<< " fill='" << color << "'"
 			<< " stroke='black'"
 			<< " cx='" << points[i].x << "' cy='" << points[i].y << "'"
@@ -170,48 +168,39 @@ int main( int argc, char * argv[] )
 			<< "/>";
 	}
 
-	svg << "<!-- draw straight lines between points -->";
-	svg << "\n <path fill='none' stroke='green' d='";
+	svg << "\n\n  <!-- draw straight lines between points -->";
+	svg << "\n  <path fill='none' stroke='green' d='";
 	svg << "\n   M " << points[0].x << "," << points[0].y << " L ";
 	for ( int i = 0 ; i < outline.n_points ; i++ ) {
 		svg << " " << points[i].x << "," << points[i].y;
 	}
-	svg << "'/>";
+	svg << "\n  '/>";
 
 
 
-	svg << "<!-- draw actual outline using lines and Bezier curves-->";
-	contour_counter = 0;
+	svg << "\n\n  <!-- draw actual outline using lines and Bezier curves-->";
 	svg << "\n\n  <path fill='none' stroke='black' d='\n";
 	svg << "      M" << points[0].x << "," << points[0].y;;
-	FT_Vector contour_startp = points[0];
-
+	contour_index = 0;
 	for ( int i = 1 ; i < outline.n_points ; i++ ) {
-		// bit 1 indicates whether its a control point on a bez curve or not
-		// two control points in a row imply another point halfway between them
-		short prevtag = tags[i-1] & 1;
-		short curtag = tags[i] & 1;
-		short nexttag = tags[i+1] & 1;
-		if ( !curtag ) {
-			svg << " Q";
-			FT_Vector nextp;
-			if ( (i+1) > contours[contour_counter] ) nextp = contour_startp;
-			else nextp = points[i+1];
-			if ( !nexttag ) {
-				nextp = halfway_between( points[i], nextp );
-			}
-			svg << " " << points[i].x << "," << points[i].y;
-			svg << " " << nextp.x << "," << nextp.y;
-		} else {
-			svg << " L" << points[i].x << "," << points[i].y;
+		// bit 1 indicates whether its a control point on a bez curve or not.
+		// two consecutive control points imply another point halfway between them
+		int previndex = i-1;
+		int currindex = i;
+		int nextindex = i+1;
+		if ( (i+1) > contours[contour_index] ) {
+			nextindex = (contour_index==0) ? 0 : contours[contour_index-1];
+			contour_index++;
 		}
-
-		if ( i == contours[contour_counter] ) {
-			contour_startp = points[i+1];
-			svg << " Z";
-			contour_counter++;
-			if ( contour_counter < outline.n_contours )
-				svg << "\n      M" << points[i+1].x << "," << points[i+1].y;
+		if ( tags[currindex] & 1 ) {
+			svg << " L" << points[i].x << "," << points[i].y;
+		} else {
+			svg << " Q" << points[i].x << "," << points[i].y;
+			FT_Vector nextp = points[nextindex];
+			if ( ! ( tags[nextindex] & 1 ) ) {
+				nextp = halfway_between( points[i], points[nextindex] );
+			}
+			svg << " " << nextp.x << "," << nextp.y;
 		}
 	}
 	svg << "\n  '/>";
