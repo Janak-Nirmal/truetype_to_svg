@@ -91,11 +91,13 @@ int main( int argc, char * argv[] )
 
 	// Print outline details, taken from the glyph in the slot.
 	FT_Outline outline = slot->outline;
-  cout << "\nNum contours: " << outline.n_contours;
-  cout << "\nNum points: " << outline.n_points;
-	FT_Vector* points = outline.points;
 	char* tags = outline.tags;
 	short* contours = outline.contours;
+  cout << "\nNum points: " << outline.n_points;
+  cout << "\nNum contours: " << outline.n_contours;
+	cout << "  Endpoint indexes:";
+	for ( int i = 0 ; i < outline.n_contours ; i++ ) cout << " " << contours[i];
+	FT_Vector* points = outline.points;
 	cout << "\n-->\n";
 
 
@@ -160,7 +162,8 @@ int main( int argc, char * argv[] )
 		if ( i == 0 ) radius = 10;
 		string color;
 		if (tags[i] & 1) color = "blue"; else color = "none";
-		svg << "\n  <circle "
+		svg << "\n  <!--" << i << "-->";
+		svg << "<circle"
 			<< " fill='" << color << "'"
 			<< " stroke='black'"
 			<< " cx='" << points[i].x << "' cy='" << points[i].y << "'"
@@ -179,28 +182,38 @@ int main( int argc, char * argv[] )
 
 
 	svg << "\n\n  <!-- draw actual outline using lines and Bezier curves-->";
-	svg << "\n\n  <path fill='none' stroke='black' d='\n";
-	svg << "      M" << points[0].x << "," << points[0].y;;
-	contour_index = 0;
-	for ( int i = 1 ; i < outline.n_points ; i++ ) {
+	svg << "\n\n  <path fill='none' stroke='black' d='";
+	int contour_starti = 0;
+	int contour_endi = contours[0];
+	int contour_counter = 0;
+	svg << "\n   M" << points[0].x << "," << points[0].y;
+	for ( int i = 0 ; i < outline.n_points ; i++ ) {
 		// bit 1 indicates whether its a control point on a bez curve or not.
 		// two consecutive control points imply another point halfway between them
 		int previndex = i-1;
 		int currindex = i;
 		int nextindex = i+1;
-		if ( (i+1) > contours[contour_index] ) {
-			nextindex = (contour_index==0) ? 0 : contours[contour_index-1];
-			contour_index++;
-		}
+		//svg << "\n<!--" << previndex << " " << currindex << " " << nextindex;
+		if ( nextindex > contour_endi ) nextindex = contour_starti;
+		if ( previndex < contour_starti ) previndex = contour_endi;
+		//svg << " -> " << previndex << " " << currindex << " " << nextindex << "-->";
 		if ( tags[currindex] & 1 ) {
-			svg << " L" << points[i].x << "," << points[i].y;
+			if ( tags[previndex] & 1 ) {
+				svg << "\n    L" << points[currindex].x << "," << points[currindex].y;
+			}
 		} else {
-			svg << " Q" << points[i].x << "," << points[i].y;
+			svg << "\n    Q" << points[currindex].x << "," << points[currindex].y;
 			FT_Vector nextp = points[nextindex];
 			if ( ! ( tags[nextindex] & 1 ) ) {
-				nextp = halfway_between( points[i], points[nextindex] );
+				nextp = halfway_between( points[currindex], points[nextindex] );
 			}
 			svg << " " << nextp.x << "," << nextp.y;
+		}
+		if ( currindex == contour_endi) {
+			contour_starti = currindex+1;
+			contour_counter++;
+			contour_endi = contours[contour_counter];
+			svg << "\n   M" << points[contour_starti].x << "," << points[contour_starti].y;
 		}
 	}
 	svg << "\n  '/>";
