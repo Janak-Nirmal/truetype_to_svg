@@ -1,5 +1,25 @@
-// Example 5
 // Read TrueType (R) outline, write SVG
+// Copyright Don Bright 2013 <hugh.m.bright@gmail.com>
+/*
+
+  This software is provided 'as-is', without any express or implied
+  warranty.  In no event will the authors be held liable for any damages
+  arising from the use of this software.
+
+  Permission is granted to anyone to use this software for any purpose,
+  including commercial applications, and to alter it and redistribute it
+  freely, subject to the following restrictions:
+
+  1. The origin of this software must not be misrepresented; you must not
+     claim that you wrote the original software. If you use this software
+     in a product, an acknowledgment in the product documentation would be
+     appreciated but is not required.
+  2. Altered source versions must be plainly marked as such, and must not be
+     misrepresented as being the original software.
+  3. This notice may not be removed or altered from any source distribution.
+
+  License based on zlib license, by Jean-loup Gailly and Mark Adler
+*/
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -91,10 +111,7 @@ int main( int argc, char * argv[] )
 	// SVG paths: http://www.w3schools.com/svg/svg_path.asp
 	// SVG paths + nonzero: http://www.w3.org/TR/SVG/painting.html#FillProperties
 
-	// Note that SVG has inverted y coordinates from Truetype, so all are
-	// converted by multiplying by negative one.
-
-	// Header + border + axes
+	// Header + border
 	stringstream svg;
 	int gheight = face->bbox.yMax - face->bbox.yMin;
 	int gwidth = face->bbox.xMax - face->bbox.xMin;
@@ -105,8 +122,8 @@ int main( int argc, char * argv[] )
 		<< " width='" << gwidth - 1 << "'"
 		<< " height='" << gheight - 1 << "'/>";
 
-	// set 0,0 at center of view area
-	int yadj = 0; //(slot->metrics.vertAdvance);
+	// make sure glyph is visible within svg window
+	int yadj = 0;
 	svg << "\n <g fill-rule='nonzero' "
 		<< " transform='translate(" << 0 << " " << metrics.horiBearingY + metrics.vertBearingY << ")'"
 		<< ">";
@@ -117,7 +134,7 @@ int main( int argc, char * argv[] )
 		<< " M" << 0 << " " << -gheight << " " << "L0 " << gheight
 		<< " '/>";
 
-	// invert
+	// Invert y coordinates (SVG = neg at top, TType = neg at bottom)
 	for ( int i = 0 ; i < outline.n_points ; i++ )
 		points[i].y *= -1;
 
