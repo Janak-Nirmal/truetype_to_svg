@@ -39,19 +39,38 @@ font files (w .ttf extensions) on your system .
 You can match this up with what you did in Charmap, then maybe you can find
 the truetype you are looking for. 
 
-### Note on implied points
+### How does Truetype actually work then? How does this program work?
 
-The points that are not touching the curve are called 'control points'. 
-The points that are touching the curve are called 'on curve points'. If 
-there are two consecutive control points, there is an 'implied' point
-'on the curve'.
+Truetype fonts consist of a group of characters.
 
-This program does not draw the 'implied points'. 
+Each character has a sequence of 'contours'. The contours that have 
+their points in 'clockwise' order are considered 'solid' The contours 
+that are anti-clockwise order are considered 'holes'.
 
-Note that these are not Cubic Bezier curves, even though it may look 
-that way with two 'control points' consecutive. They aren't really 
-consecutive - as stated earlier, there is an 'implied' point between 
-them. Truetype uses Quadratic Beziers (one control point, two endpoints).
+Each contour is actually made up of a sequence of points. There are two 
+types - 'on the curve' points and 'off the curve' points. The 'off the curve'
+points are used to create Bezier Curves between the 'on the curve' points. 
+It uses a type of Bezier called 'Quadratic', which consists of two endpoints
+and one 'control point'. 
+
+A special note regards two consecutive 'off the curve' points - in 
+Truetype these actually 'imply' that there is an 'on the curve' point 
+exactly halfway between them. This program does not draw these implied points. 
+
+This program does not read the files directly - it relies on the Freetype
+program. Freetype automates a large amount of detail regarding loading
+the files and dealing with character sets, glyphs, etc. 
+
+See these sites for more info.
+
+Basic Terms: http://www.freetype.org/freetype2/docs/glyphs/glyphs-3.html
+FType + outlines: http://www.freetype.org/freetype2/docs/reference/ft2-outline_processing.html
+FType + contours: http://www.freetype.org/freetype2/docs/glyphs/glyphs-6.html
+TType contours: https://developer.apple.com/fonts/TTRefMan/RM01/Chap1.html
+TType contours2: http://www.truetype-typography.com/ttoutln.htm
+Non-zero winding rule: http://en.wikipedia.org/wiki/Nonzero-rule
+SVG paths: http://www.w3schools.com/svg/svg_path.asp
+SVG paths + nonzero: http://www.w3.org/TR/SVG/painting.html#FillProperties
 
 ### Test characters
 
