@@ -182,21 +182,22 @@ int main( int argc, char * argv[] )
 
 
 	svg << "\n\n  <!-- draw actual outline using lines and Bezier curves-->";
-	svg << "\n\n  <path fill='none' stroke='black' d='";
+	svg	<< "\n\n  <path fill='black' stroke='black'"
+		<< " fill-opacity='0.45' "
+		<< " stroke-width='2' "
+		<< " d='";
 	int contour_starti = 0;
 	int contour_endi = contours[0];
 	int contour_counter = 0;
 	svg << "\n   M" << points[0].x << "," << points[0].y;
 	for ( int i = 0 ; i < outline.n_points ; i++ ) {
-		// bit 1 indicates whether its a control point on a bez curve or not.
-		// two consecutive control points imply another point halfway between them
 		int previndex = i-1;
 		int currindex = i;
 		int nextindex = i+1;
-		//svg << "\n<!--" << previndex << " " << currindex << " " << nextindex;
 		if ( nextindex > contour_endi ) nextindex = contour_starti;
 		if ( previndex < contour_starti ) previndex = contour_endi;
-		//svg << " -> " << previndex << " " << currindex << " " << nextindex << "-->";
+		// tag bit 1 indicates whether its a control point on a bez curve or not.
+		// two consecutive control points imply another point halfway between them
 		if ( tags[currindex] & 1 ) {
 			if ( tags[previndex] & 1 ) {
 				svg << "\n    L" << points[currindex].x << "," << points[currindex].y;
@@ -209,11 +210,17 @@ int main( int argc, char * argv[] )
 			}
 			svg << " " << nextp.x << "," << nextp.y;
 		}
-		if ( currindex == contour_endi) {
-			contour_starti = currindex+1;
-			contour_counter++;
+		if ( currindex == contour_endi ) {
+			contour_counter = ( contour_counter + 1 ) % outline.n_contours;
+			contour_starti = ( currindex + 1 ) % outline.n_points;;
 			contour_endi = contours[contour_counter];
-			svg << "\n   M" << points[contour_starti].x << "," << points[contour_starti].y;
+			//svg << "\n   " << contour_starti << " " << contour_endi;
+			FT_Vector firstp;
+			if ( ! ( tags[contour_starti] & 1 ) )
+				firstp = halfway_between( points[contour_endi], points[contour_starti] );
+			else
+				firstp = points[contour_starti];
+			svg << "\n  Z M" << firstp.x << "," << firstp.y;
 		}
 	}
 	svg << "\n  '/>";

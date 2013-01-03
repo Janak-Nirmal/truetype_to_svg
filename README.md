@@ -24,78 +24,57 @@ It is recommended to get the Firefox addon that can auto-reload files
 when they change on disk. 
 
 
+### Finding cool Unicode points
+
+http://www.fileformat.info/info/unicode/block/index.htm
+
 ### Finding A Unicode font
 
-It's a bit tricky, this doesn't use the tricks of linux to automatically 
-find fonts to fill a requested code. Different fonts have different amounts
-of glyphs.
+Linux: Run 'charmap', under ubuntu, and then right click on interesting 
+looking glyphs. It will give you some rough idea of the font name.
 
-A good start is to run 'charmap', under ubuntu, and then right click
-on interesting looking glyphs. It will give you some rough idea of the font
-name. 
-
-Now you can do 'locate ttf | grep ttf$' which will give a list of all 
-Truetype fonts (w .ttf extensions) on your system . 
+Then do 'locate ttf | grep ttf$' which will give a list of all Truetype 
+font files (w .ttf extensions) on your system .
 
 You can match this up with what you did in Charmap, then maybe you can find
 the truetype you are looking for. 
 
+### Note on implied points
 
-### Note on points
+The points that are not touching the curve are called 'control points'. 
+The points that are touching the curve are called 'on curve points'. If 
+there are two consecutive control points, there is an 'implied' point
+'on the curve'.
 
-The display of raw TrueType points can be a bit confusing. Truetype uses
-Quadratic Beziers (two points on-curve, and one 'control' point defining
-the curve). 
+This program does not draw the 'implied points'. 
 
-But even though its really using Quadratic beziers , it kind of looks 
-like it might be using Cubics (two points on curve, and two control 
-points off curve)... but it's not. There are actually invisible on-curve 
-points 'implied' to exist halfway between two adjacent off-curve 
-Quadratic Bezier control points - that's how Truetype works (and 
-supposedly saves data of having extra points since the machine can 
-calculate the implied points automatically).
+Note that these are not Cubic Bezier curves, even though it may look 
+that way with two 'control points' consecutive. They aren't really 
+consecutive - as stated earlier, there is an 'implied' point between 
+them. Truetype uses Quadratic Beziers (one control point, two endpoints).
 
-So the 'off-the-curve' aka 'control' points are drawn ... but TrueType 
-has 'implied' "on-the-curve" points when two off-curve points come one 
-right after the other - and they aren't drawn. It's not cubics though. We
-aren't doing cubics. 
+### Test characters
 
-I could draw the 'invisibles', but this is a quick example hack not a 
-well designed thought out program.
+Unicode 
+67, 68 (C, D)
+48007 and 0x1f01e
+0x2766 0x2777
 
+Bearing is messed up on some glyphs
 
-### Known Bugs
+### Other projects
 
-
-It screws up on the last segment of each contour so some letters look 'off'. 
-This is easily viewable with unicode 67, 68 (C, D)
-Also see unicode 48007 and 0x1f01e
-
-There are 'duplicate points'
-
-i.e.
-imagine A and B are points
-
-you have QA B LB LC
-
-it should be QA B LC
-
-
-some glyphs are right up close on the left side - need to indent somehow
-with bearing or something from the freetype metrics
-
-### Misc
-
-Are there not other projects that do this better faster stronger harder?
-
-Yes, but they use Java
+The "Batik" project does similar stuff. It is Java:
 
 http://xmlgraphics.apache.org/batik/tools/font-converter.html
-
 
 ### Todo
 
 get real name of glyph (like unicode name)
 
 investigate linux's auto-finding of unicode glyphs
+
+auto-find fonts on linux, not require cmdline fontname?
+
+accept U+4034 (hex) input format
 
