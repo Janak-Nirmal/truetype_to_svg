@@ -6,5 +6,7 @@ else
   CC=g++
 fi
 
-$CC truetype_to_svg.cpp -o truetype_to_svg `freetype-config --cflags --libs`
+WARN="-pedantic -Wall"
+FREETYPE_FLAGS=`freetype-config --cflags --libs`
+$CC $WARN main.cpp -o truetype_to_svg $FREETYPE_FLAGS
 

@@ -18,10 +18,24 @@ You can use hex as well. For example, Cherokee Letter O:
 
     ./a.out ./FreeSerif.ttf 0x13A3 > /tmp/x.svg
 
-Then in Firefox type 'file:///tmp/x.svg' into your address bar. 
+To view the resulting svg file, it is easiest to use firefox: type 
+'file:///tmp/x.svg' into your address bar. It is recommended to get the 
+Firefox addon that can auto-reload files when they change on disk.
 
-It is recommended to get the Firefox addon that can auto-reload files
-when they change on disk. 
+You can also use svg viewers like Inkscape.
+
+### Using in your own C++ project
+
+truetype_to_svg is a 'header library' so you dont need to compile any 
+libraries just include the header and use it. For example:
+
+    #include <truetype_to_svg.hpp>
+
+    int main()
+    {
+        tt2svg::glyph g( "FreeSans.ttf", 67 );
+        std::cout << g.svgheader() << g.outline() << g.svgfooter();
+    }
 
 
 ### Finding cool Unicode points
@@ -77,7 +91,7 @@ SVG paths + nonzero: http://www.w3.org/TR/SVG/painting.html#FillProperties
 Unicode 
 67, 68 (C, D)
 48007 and 0x1f01e
-0x2766 0x2777
+0x2766 0x2767
 
 Bearing is messed up on some glyphs
 
