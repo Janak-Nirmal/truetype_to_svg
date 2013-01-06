@@ -1,18 +1,36 @@
 truetype_to_svg
 ===============
 
-Render truetype font as SVG path
+Render truetype font as SVG path, using the Freetype library
 
-Tested on Linux
+### Using in your own C++ project
+
+    #include <truetype_to_svg.hpp>
+
+    int main()
+    {
+        tt2svg::glyph g( "FreeSans.ttf", 67 );
+        std::cout << g.outline();
+    }
 
 ### Build and run:
 
-    cp `locate FreeSerif.ttf` .
+    # install freetype using your package manager
+    # (something like sudo apt-get install libfreetype6-dev)
+    # then copy a .ttf file to this directory for convenience
+    cp `locate FreeSerif.ttf | tail -1 ` .
     ./build.sh
-    ./truetype_to_svg ./FreeSerif.ttf 66 > /tmp/x.svg 
+    ./test1 ./FreeSerif.ttf 66 > /tmp/x.svg 
+    firefox /tmp/x.svg
 
-66 = unicode for 'B'. you can use any number here. 
-(note that the first part of ASCII is the same as unicode so ASCII codes work too)
+### Details on running examples
+
+When we ran this,
+
+    ./test1 ./FreeSerif.ttf 66 > /tmp/x.svg 
+
+66 = unicode for 'B'. you can use any number here. (note that the first 
+part of ASCII is the same as unicode so ASCII codes work too)
 
 You can use hex as well. For example, Cherokee Letter O:
 
@@ -24,19 +42,24 @@ Firefox addon that can auto-reload files when they change on disk.
 
 You can also use svg viewers like Inkscape.
 
-### Using in your own C++ project
+### Detail on using in your own projcet
 
-truetype_to_svg is a 'header library' so you dont need to compile any 
-libraries just include the header and use it. For example:
+Truetype_to_svg is a 'header library' so you dont need to compile any 
+libraries just include the header and use it. You will still need to
+link to Freetype however, using your build system. 
 
-    #include <truetype_to_svg.hpp>
+It uses freetype to deal with vaguaries and variations of Truetype 
+files. It does not use any of the bitmap rendering code - this is a pure 
+outline curve renderer to be used for vector output. 
 
-    int main()
-    {
-        tt2svg::glyph g( "FreeSans.ttf", 67 );
-        std::cout << g.svgheader() << g.outline() << g.svgfooter();
-    }
+Truetype_to_svg comes with a very permissive license - it is almost the same
+BSD-ish license used by Zlib. It does not come with any of the 
+restrictions of GPL. Acknowledgment in the product documentation would 
+be appreciated but is not required.
 
+To understand the usage, look at the files named 'test*.cpp' that come
+with the source code. You can output the bare svg path data, or a bunch
+of debugging information.
 
 ### Finding cool Unicode points
 
@@ -73,9 +96,15 @@ exactly halfway between them. This program does not draw these implied points.
 
 This program does not read the files directly - it relies on the Freetype
 program. Freetype automates a large amount of detail regarding loading
-the files and dealing with character sets, glyphs, etc. 
+the files and dealing with character sets, glyphs, mapping, etc. 
 
-See these sites for more info.
+This does not use any of Freetype's bitmap rendering. It is only for 
+vector output. To show a bitmap (like on a screen) there will need to be 
+some implementation of the non-zero winding rule. SVG makes this 
+incredibly simple with "fill-rule='nonzero'", which is then implemented
+by the SVG viewer program.
+
+Please see these sites for more info.
 
 Basic Terms: http://www.freetype.org/freetype2/docs/glyphs/glyphs-3.html
 FType + outlines: http://www.freetype.org/freetype2/docs/reference/ft2-outline_processing.html
@@ -111,3 +140,6 @@ auto-find fonts on linux, not require cmdline fontname?
 
 accept U+4034 (hex) input format
 
+### known bugs
+
+will not calculate proper use of '<g>' for varying uses of transform/footer

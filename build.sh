@@ -8,5 +8,10 @@ fi
 
 WARN="-pedantic -Wall"
 FREETYPE_FLAGS=`freetype-config --cflags --libs`
-$CC $WARN main.cpp -o truetype_to_svg $FREETYPE_FLAGS
+SOURCE_FILES="test1 test2"
+
+for sourcefile in $SOURCE_FILES;
+  do $CC $WARN $sourcefile".cpp" -o $sourcefile $FREETYPE_FLAGS
+done
+
 

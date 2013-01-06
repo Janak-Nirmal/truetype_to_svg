@@ -186,7 +186,13 @@ public:
 	}
 
 	std::string svgtransform() {
-		// note also that y coords of all points are flipped during init()
+		// Truetype points are not in the range usually visible by SVG.
+		// they often have negative numbers etc. So.. here we
+		// 'transform' to make visible.
+		//
+		// note also that y coords of all points have been flipped during
+		// init() so that SVG Y positive = Truetype Y positive
+		tmp.str("");
 		tmp << "\n\n <!-- make sure glyph is visible within svg window -->";
 		int yadj = gm.horiBearingY + gm.vertBearingY + 100;
 		int xadj = 100;
